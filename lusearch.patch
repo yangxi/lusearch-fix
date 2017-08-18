@@ -1,0 +1,39 @@
+diff -r 0418123642ac libs/lucene/build.xml
+--- a/libs/lucene/build.xml	Sun Jul 31 18:43:37 2011 +1000
++++ b/libs/lucene/build.xml	Thu Aug 04 16:53:38 2011 +1000
+@@ -20,7 +20,9 @@
+ 
+ 	<property name="lib-build-top" value="${lib-build-dir}/lucene-${lib-version}"/>
+ 
+-	<target name="unpack" depends="untar"/>
++	<target name="unpack" depends="untar">
++	  <patch patchfile="libs/${lib-name}/${lib-name}.patch" dir="${lib-build-dir}/lucene-${lib-version}" strip="1" ignorewhitespace="yes"/>
++	</target>
+ 
+ 	<target name="build">
+ 		<ant antfile="build.xml" target="jar-core" dir="${lib-build-top}" inheritall="false"/>
+diff -r 0418123642ac libs/lucene/lucene.patch
+--- /dev/null	Thu Jan 01 00:00:00 1970 +0000
++++ b/libs/lucene/lucene.patch	Thu Aug 04 16:53:38 2011 +1000
+@@ -0,0 +1,21 @@
++diff -r 775d5683ce15 src/java/org/apache/lucene/queryParser/QueryParser.java
++--- a/src/java/org/apache/lucene/queryParser/QueryParser.java	Mon Aug 01 22:44:48 2011 +1000
+++++ b/src/java/org/apache/lucene/queryParser/QueryParser.java	Mon Aug 01 22:52:22 2011 +1000
++@@ -507,7 +507,16 @@
++     // Use the analyzer to get all the tokens, and then build a TermQuery,
++     // PhraseQuery, or nothing based on the term count
++ 
++-    TokenStream source = analyzer.tokenStream(field, new StringReader(queryText));
+++    //    TokenStream source = analyzer.tokenStream(field, new StringReader(queryText));
+++
+++    TokenStream source;
+++    try {
+++      source = analyzer.reusableTokenStream(field, new StringReader(queryText));
+++      source.reset();
+++    } catch (IOException e) {
+++      source = analyzer.tokenStream(field, new StringReader(queryText));
+++    }
+++
++     List list = new ArrayList();
++     final org.apache.lucene.analysis.Token reusableToken = new org.apache.lucene.analysis.Token();
++     org.apache.lucene.analysis.Token nextToken;

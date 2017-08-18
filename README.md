@@ -1,0 +1,1 @@
+Lusearch benchmark of Dacapo 9.12 release uses Lucene 2.4.1 which has a performance bug (https://issues.apache.org/jira/browse/LUCENE-1800). Lucene 3.3.0 fixed the problem. This repository has a similar patch for Dacapo 9.12, and two compiled JARs, one is based on Lucene 3.3.0, another one is based on the patch. 
